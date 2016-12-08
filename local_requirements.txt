@@ -9,4 +9,4 @@ python-dateutil==2.1
 
 # edX packages
 -e git+https://github.com/edx/event-tracking.git@0.2.1#egg=event-tracking==0.2.1
-edx-opaque-keys==0.3.4
+edx-opaque-keys
