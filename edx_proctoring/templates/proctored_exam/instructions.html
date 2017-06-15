@@ -133,7 +133,7 @@
 
 
   function check_exam_started() {
-    var url = $('.instructions').data('exam-started-poll-url') + '?sourceid=instructions';
+    var url = $('.instructions').data('exam-started-poll-url');
     $.ajax(url).success(function(data){
       if (data.status === 'ready_to_start') {
         // we've state transitioned, so refresh the page
@@ -157,26 +157,15 @@
   $('.start-proctored-exam').click(check_exam_started);
 
   $("#software_download_link").click(function (e) {
-    e.preventDefault();
-    var url = $('.instructions').data('exam-started-poll-url');
-    var action = $(this).data('action');
-    // open the new tab in the click event with an empty URL but show the message.
-    var newWindow = window.open("", "_blank");
-    $(newWindow.document.body).html("<p>Please wait while you are being redirected...</p>");
-
-    var self = this;
     $.ajax({
-      url: url,
-      type: 'PUT',
-      data: {
-        action: action
-      },
-      success: function (data) {
-        newWindow.location = "{{software_download_url}}";
-      }
-    }).fail(function(){
-      newWindow.close();
-    });
+        url: "{{software_download_url}}",
+        type: 'POST',
+        data: {
+            start_clock: true,
+            attempt_proctored: true,
+            exam_id: $('.instructions').data('exam-id')
+        }
+    );
   });
 
 </script>

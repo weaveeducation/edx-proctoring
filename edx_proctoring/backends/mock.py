@@ -70,7 +70,7 @@ class MockProctoringBackendProvider(ProctoringBackendProvider):
             the URL that the user needs to go to in order to download
             the corresponding desktop software
         """
-        return "mockurl"
+        return "api/edx_proctoring/v1/proctored_exam/attempt"
 
     def on_review_callback(self, payload):
         """
