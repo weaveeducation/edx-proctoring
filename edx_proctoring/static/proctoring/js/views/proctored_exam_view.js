@@ -113,9 +113,13 @@ var edx = edx || {};
                               action: 'stop'
                             },
                             success: function() {
-                              // change the location of the page to the active exam page
-                              // which will reflect the new state of the attempt
-                              location.href = self.model.get('exam_url_path');
+                                // change the location of the page to the active exam page
+                                // which will reflect the new state of the attempt
+                                if (window.chromlessView) {
+                                    location.reload();
+                                } else {
+                                    location.href = self.model.get('exam_url_path');
+                                }
                             }
                         });
                     });
