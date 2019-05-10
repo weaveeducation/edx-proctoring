@@ -44,6 +44,7 @@ from edx_proctoring.api import (
     has_due_date_passed,
     get_backend_provider,
     mark_exam_attempt_as_ready,
+    check_exam_questions_completed
 )
 from edx_proctoring.constants import PING_FAILURE_PASSTHROUGH_TEMPLATE
 
@@ -420,6 +421,16 @@ class StudentProctoredExamAttempt(ProctoredAPIView):
                 attempt['proctored_exam']['id'],
                 request.user.id,
                 ProctoredExamStudentAttemptStatus.declined
+            )
+        elif action == 'check_questions_completed':
+            exam_attempt_obj = ProctoredExamStudentAttempt.objects.get_exam_attempt_by_id(attempt_id)
+            proctored_exam = exam_attempt_obj.proctored_exam
+            course_id = proctored_exam.course_id
+            content_id = proctored_exam.content_id
+            completion_dict = check_exam_questions_completed(request, course_id, content_id)
+            return Response(
+                data=completion_dict,
+                status=status.HTTP_200_OK
             )
         data = {"exam_attempt_id": exam_attempt_id}
         return Response(data)

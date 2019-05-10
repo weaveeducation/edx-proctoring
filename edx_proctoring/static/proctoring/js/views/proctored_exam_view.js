@@ -85,7 +85,45 @@ var edx = edx || {};
 
             this.render();
         },
+        checkQuestionsCompleted: function(attemptId, completedCallback, notCompletedCallback) {
+            $.ajax({
+                url: '/api/edx_proctoring/v1/proctored_exam/attempt/' + attemptId,
+                type: 'PUT',
+                data: {
+                    action: 'check_questions_completed'
+                },
+                success: function(data) {
+                    if (data.result) {
+                        completedCallback();
+                    } else {
+                        notCompletedCallback(data.unanswered_count, data.problems_count);
+                    }
+                }
+            });
+
+        },
         render: function () {
+            var self = this;
+            function stopExam() {
+                $(window).unbind('beforeunload', self.unloadMessage);
+                $.ajax({
+                    url: '/api/edx_proctoring/v1/proctored_exam/attempt/' + self.model.get('attempt_id'),
+                    type: 'PUT',
+                    data: {
+                        action: 'stop'
+                    },
+                    success: function() {
+                        // change the location of the page to the active exam page
+                        // which will reflect the new state of the attempt
+                        location.href = self.model.get('exam_url_path');
+                        if (window.chromlessView) {
+                            location.reload();
+                        } else {
+                            location.href = self.model.get('exam_url_path');
+                        }
+                    }
+                });
+            }
             if (this.template !== null) {
                 if (
                     this.model.get('in_timed_exam') &&
@@ -109,27 +147,16 @@ var edx = edx || {};
                     this.timerId = setInterval(this.updateRemainingTime, 1000, this);
 
                     // Bind a click handler to the exam controls
-                    var self = this;
                     $('.exam-button-turn-in-exam').click(function(){
-                        $(window).unbind('beforeunload', self.unloadMessage);
-
-                        $.ajax({
-                            url: '/api/edx_proctoring/v1/proctored_exam/attempt/' + self.model.get('attempt_id'),
-                            type: 'PUT',
-                            data: {
-                              action: 'stop'
-                            },
-                            success: function() {
-                              // change the location of the page to the active exam page
-                              // which will reflect the new state of the attempt
-                              location.href = self.model.get('exam_url_path');
-                              if (window.chromlessView) {
-                                location.reload();
-                              } else {
-                                location.href = self.model.get('exam_url_path');
-                              }
+                        self.checkQuestionsCompleted(
+                            self.model.get('attempt_id'),
+                            function() { stopExam(); },
+                            function(numQuestions, totalQuestions) {
+                                if (confirm("You have not completed " + numQuestions + " of " + totalQuestions + " questions in the exam. Are you sure you want to end your exam?")) {
+                                    stopExam();
+                                }
                             }
-                        });
+                        );
                     });
                 }
                 else {
