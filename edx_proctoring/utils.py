@@ -37,11 +37,17 @@ log = logging.getLogger(__name__)
 AES_BLOCK_SIZE_BYTES = int(AES.block_size / 8)
 
 
+class CsrfExemptSessionAuthentication(SessionAuthentication):
+
+    def enforce_csrf(self, request):
+        return  # To not perform the csrf check previously happening
+
+
 class AuthenticatedAPIView(APIView):
     """
     Authenticate APi View.
     """
-    authentication_classes = (SessionAuthentication, JwtAuthentication)
+    authentication_classes = (CsrfExemptSessionAuthentication)
     permission_classes = (IsAuthenticated,)
 
 

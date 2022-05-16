@@ -74,6 +74,8 @@ from edx_proctoring.utils import (
     obscured_user_id,
     verify_and_add_wait_deadline
 )
+from xmodule.modulestore.django import modulestore
+from opaque_keys.edx.keys import UsageKey, CourseKey
 
 log = logging.getLogger(__name__)
 
@@ -3138,3 +3140,54 @@ def get_onboarding_attempt_data_for_learner(course_id, user, backend):
         data['onboarding_status'] = relevant_attempt.status
 
     return data
+
+
+def get_all_exam_problems(block):
+    _problems = []
+    if block.category == 'library_content':
+        children = block.get_child_descriptors()
+    else:
+        children = block.get_children()
+    for child in children:
+        if child.category == 'problem':
+            _problems.append(str(child.location))
+        _problems.extend(get_all_exam_problems(child))
+    return _problems
+
+
+def check_exam_questions_completed(request, course_id, content_id):
+    from lms.djangoapps.courseware.model_data import FieldDataCache
+    from lms.djangoapps.courseware.models import StudentModule
+    from lms.djangoapps.courseware.module_render import get_module_for_descriptor
+
+    user = request.user
+    course_key = CourseKey.from_string(course_id)
+    usage_key = UsageKey.from_string(content_id)
+
+    course = modulestore().get_course(course_key)
+    seq_item = modulestore().get_item(usage_key)
+
+    field_data_cache = FieldDataCache.cache_for_descriptor_descendents(
+        course_key, user, seq_item
+    )
+    section = get_module_for_descriptor(
+        user, request, seq_item, field_data_cache, course_key, course=course
+    )
+
+    items = StudentModule.objects.filter(course_id=CourseKey.from_string(course_id),
+                                         student=user,
+                                         module_type='problem')
+    student_module = {}
+    for item in items:
+        student_module[str(item.module_state_key)] = item.grade
+    problems = get_all_exam_problems(section)
+    problems_count = len(problems)
+    unanswered_count = 0
+    for problem_id in problems:
+        if problem_id not in student_module or student_module[problem_id] is None:
+            unanswered_count = unanswered_count + 1
+    return {
+        'result': unanswered_count == 0,
+        'problems_count': problems_count,
+        'unanswered_count': unanswered_count
+    }
