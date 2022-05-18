@@ -43,11 +43,17 @@ class CsrfExemptSessionAuthentication(SessionAuthentication):
         return  # To not perform the csrf check previously happening
 
 
+class CsrfExemptJwtAuthentication(JwtAuthentication):
+
+    def enforce_csrf(self, request):
+        return  # To not perform the csrf check previously happening
+
+
 class AuthenticatedAPIView(APIView):
     """
     Authenticate APi View.
     """
-    authentication_classes = (CsrfExemptSessionAuthentication)
+    authentication_classes = (CsrfExemptSessionAuthentication,CsrfExemptJwtAuthentication)
     permission_classes = (IsAuthenticated,)
 
 
