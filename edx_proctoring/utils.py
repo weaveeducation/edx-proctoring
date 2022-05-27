@@ -369,9 +369,11 @@ def get_exam_type(exam, provider):
 
 def resolve_exam_url_for_learning_mfe(course_id, content_id):
     """ Helper that builds the url to the exam for the MFE app learning. """
+    from openedx.core.djangoapps.site_configuration import helpers as configuration_helpers
+    mfe_url = configuration_helpers.get_value('LEARNING_MICROFRONTEND_URL', settings.LEARNING_MICROFRONTEND_URL)
     course_key = CourseKey.from_string(course_id)
     usage_key = UsageKey.from_string(content_id)
-    url = f'{settings.LEARNING_MICROFRONTEND_URL}/course/{course_key}/{usage_key}'
+    url = f'{mfe_url}/course/{course_key}/{usage_key}'
     return url
 
 
