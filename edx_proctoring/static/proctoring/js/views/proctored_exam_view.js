@@ -11,8 +11,13 @@ edx = edx || {};
             var templateHtml, controlsTemplateHtml;
             _.bindAll(this, 'detectScroll');
             this.$el = options.el;
-            this.timerBarTopPosition = this.$el.position().top;
-            this.initialCourseNavBarMarginTop = this.timerBarTopPosition - 3;
+            if (this.$el.position()) {
+                this.timerBarTopPosition = this.$el.position().top;
+                this.initialCourseNavBarMarginTop = this.timerBarTopPosition - 3;
+            } else {
+                this.timerBarTopPosition = 0;
+                this.initialCourseNavBarMarginTop = 0;
+            }
             this.model = options.model;
             this.templateId = options.proctored_template;
             this.template = null;

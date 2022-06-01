@@ -24,7 +24,6 @@ def plugin_settings(settings):
             'proctoring/js/collections/proctored_exam_onboarding_collection.js',
             'proctoring/js/collections/proctored_exam_collection.js',
             'proctoring/js/views/Backbone.ModalDialog.js',
-            'proctoring/js/views/proctored_exam_add_allowance_view.js',
             'proctoring/js/views/proctored_exam_add_bulk_allowance_view.js',
             'proctoring/js/views/proctored_exam_allowance_view.js',
             'proctoring/js/views/proctored_exam_attempt_view.js',
