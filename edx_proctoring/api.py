@@ -2346,7 +2346,7 @@ def get_attempt_status_summary(user_id, course_id, content_id):
         exam = get_exam_by_content_id(course_id, content_id)
     except ProctoredExamNotFoundException:
         # this really shouldn't happen, but log it at least
-        log.exception(
+        log.info(
             ('Requested attempt status summary for user_id=%(user_id)s, but could not find exam '
              'in course_id=%(course_id)s with content_id=%(content_id)s'),
             {
