@@ -53,6 +53,7 @@ from edx_proctoring.api import (
     is_exam_passed_due,
     mark_exam_attempt_as_ready,
     mark_exam_attempt_as_ready_to_resume,
+    check_exam_questions_completed,
     remove_allowance_for_user,
     remove_exam_attempt,
     reset_practice_exam,
@@ -1390,6 +1391,16 @@ class StudentProctoredExamAttempt(ProctoredAPIView):
             )
         elif action == 'mark_ready_to_resume':
             exam_attempt_id = mark_exam_attempt_as_ready_to_resume(attempt_id)
+        elif action == 'check_questions_completed':
+            exam_attempt_obj = ProctoredExamStudentAttempt.objects.get_exam_attempt_by_id(attempt_id)
+            proctored_exam = exam_attempt_obj.proctored_exam
+            course_id = proctored_exam.course_id
+            content_id = proctored_exam.content_id
+            completion_dict = check_exam_questions_completed(request, course_id, content_id)
+            return Response(
+                data=completion_dict,
+                status=status.HTTP_200_OK
+            )
 
         data = {"exam_attempt_id": exam_attempt_id}
         return Response(data)

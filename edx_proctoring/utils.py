@@ -37,11 +37,23 @@ log = logging.getLogger(__name__)
 AES_BLOCK_SIZE_BYTES = int(AES.block_size / 8)
 
 
+class CsrfExemptSessionAuthentication(SessionAuthentication):
+
+    def enforce_csrf(self, request):
+        return  # To not perform the csrf check previously happening
+
+
+class CsrfExemptJwtAuthentication(JwtAuthentication):
+
+    def enforce_csrf(self, request):
+        return  # To not perform the csrf check previously happening
+
+
 class AuthenticatedAPIView(APIView):
     """
     Authenticate APi View.
     """
-    authentication_classes = (SessionAuthentication, JwtAuthentication)
+    authentication_classes = (CsrfExemptSessionAuthentication, CsrfExemptJwtAuthentication)
     permission_classes = (IsAuthenticated,)
 
 
@@ -357,16 +369,20 @@ def get_exam_type(exam, provider):
 
 def resolve_exam_url_for_learning_mfe(course_id, content_id):
     """ Helper that builds the url to the exam for the MFE app learning. """
+    from openedx.core.djangoapps.site_configuration import helpers as configuration_helpers
+    mfe_url = configuration_helpers.get_value('LEARNING_MICROFRONTEND_URL', settings.LEARNING_MICROFRONTEND_URL)
     course_key = CourseKey.from_string(course_id)
     usage_key = UsageKey.from_string(content_id)
-    url = f'{settings.LEARNING_MICROFRONTEND_URL}/course/{course_key}/{usage_key}'
+    url = f'{mfe_url}/course/{course_key}/{usage_key}'
     return url
 
 
 def get_course_home_url(course_id):
     """ Helper that builds the course home url """
+    from openedx.core.djangoapps.site_configuration import helpers as configuration_helpers
+    mfe_url = configuration_helpers.get_value('LEARNING_MICROFRONTEND_URL', settings.LEARNING_MICROFRONTEND_URL)
     course_key = CourseKey.from_string(course_id)
-    url = f'{settings.LEARNING_MICROFRONTEND_URL}/course/{course_key}/home'
+    url = f'{mfe_url}/course/{course_key}/home'
     return url
 
 
