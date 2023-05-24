@@ -3167,7 +3167,7 @@ def get_all_exam_problems(block):
 def check_exam_questions_completed(request, course_id, content_id):
     from lms.djangoapps.courseware.model_data import FieldDataCache
     from lms.djangoapps.courseware.models import StudentModule
-    from lms.djangoapps.courseware.module_render import get_module_for_descriptor
+    from lms.djangoapps.courseware.block_render import get_block_for_descriptor
 
     user = request.user
     course_key = CourseKey.from_string(course_id)
@@ -3179,7 +3179,7 @@ def check_exam_questions_completed(request, course_id, content_id):
     field_data_cache = FieldDataCache.cache_for_descriptor_descendents(
         course_key, user, seq_item
     )
-    section = get_module_for_descriptor(
+    section = get_block_for_descriptor(
         user, request, seq_item, field_data_cache, course_key, course=course
     )
 
